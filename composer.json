@@ -1,0 +1,17 @@
+{
+    "name": "phputil/restage",
+    "description": "Add only modified files to the staging area",
+    "type": "application",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thiago Delgado Pinto"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "src/main.php"
+        ]
+    },
+    "bin": [ "bin/restage" ]
+}
