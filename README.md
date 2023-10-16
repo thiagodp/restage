@@ -20,7 +20,9 @@ composer require phputil/restage --dev
 php vendor/bin/restage
 ```
 
-📖 Tip: You probably want to include to above command in a Git Hook such as `pre-commit`. You can also use [Captain Hook](https://github.com/captainhookphp/captainhook) to manage your Git Hooks within a JSON file.
+📖 Tips:
+- You probably want to include the above command into your Git Hook (e.g. `pre-commit`).
+- You can also use [Captain Hook](https://github.com/captainhookphp/captainhook) to manage your Git Hooks within a JSON file.
 
 ## License
 

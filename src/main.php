@@ -1,25 +1,80 @@
 <?php
 const TOOL = '[restage] ';
 const SUCCESS = 0;
+
+function successColor( $msg ) { return "\033[1;37m\033[42m$msg\033[0m"; }
+
+function hasFlag( $flag ) {
+    if ( ! isset( $_SERVER[ 'argv' ] ) ) {
+        return false;
+    }
+    $index = array_search( $flag, $_SERVER[ 'argv' ] );
+    return $index !== false;
+}
+
+function showHelp() {
+    echo TOOL, PHP_EOL;
+    echo '  --help         This help.', PHP_EOL;
+    echo '  --verbose, -v  Enable verbose mode.', PHP_EOL;
+    echo '  --dry-run, -d  Simulate the command without actually doing anything.', PHP_EOL;
+    exit( SUCCESS );
+}
+
+// ----------------------------------------------------------------------------
+
+$verboseMode = hasFlag( '-v' ) || hasFlag( '--verbose' );
+$dryRunMode = hasFlag( '-d' ) || hasFlag( '--dry-run' );
+$helpMode = hasFlag( '--help' );
+
+if ( $helpMode ) {
+    showHelp();
+}
+if ( $dryRunMode ) {
+    echo TOOL, 'Dry-run enabled', PHP_EOL;
+}
+
 $command = 'git status --porcelain';
+if ( $verboseMode || $dryRunMode ) {
+    echo TOOL, $command, PHP_EOL;
+}
 exec( $command, $output, $exitCode );
 if ( $exitCode != SUCCESS ) {
     echo TOOL, "Could not run \"$command\"", PHP_EOL;
     exit( $exitCode );
 }
+
+// Extract changed files
 $changedFiles = [];
-// In this case, substr() will do the job for multi-byte strings
 foreach ( $output as $line ) {
-    if ( substr( $line, 0, 2 ) == ' M' ) {
-        $changedFiles []= substr( $line, 3 );
+    // Works with multi-byte strings
+    $mode = trim( substr( $line, 0, 2 ) );
+    $file = trim( substr( $line, 2 ) );
+    if ( $mode == 'M' || $mode == 'MM' ) {
+        $changedFiles []= $file;
     }
 }
-$command = 'git add ' . implode( ' ', $changedFiles );
-exec( $command, $output, $exitCode );
-if ( $exitCode != SUCCESS ) {
-    echo TOOL, "Could not run \"$command\"", PHP_EOL;
-    exit( $exitCode );
+
+// No changes
+if ( count( $changedFiles ) < 1 ) {
+    if ( $verboseMode ) {
+        echo TOOL, 'No changes.', PHP_EOL;
+    }
+    echo TOOL, successColor( ' OK ' ), PHP_EOL;
+    exit( SUCCESS );
 }
-function colorful( $msg ) { return "\033[1;37m\033[42m$msg\033[0m"; }
-echo TOOL, colorful( ' OK ' );
+
+$command = 'git add ' . implode( ' ', $changedFiles );
+if ( $verboseMode || $dryRunMode ) {
+    echo TOOL, $command, PHP_EOL;
+}
+if ( ! $dryRunMode ) {
+    exec( $command, $output, $exitCode );
+    if ( $exitCode != SUCCESS ) {
+        echo TOOL, "Could not run \"$command\"", PHP_EOL;
+        exit( $exitCode );
+    }
+}
+
+echo TOOL, successColor( ' OK ' ), PHP_EOL;
+exit( SUCCESS );
 ?>
