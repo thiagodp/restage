@@ -1,4 +1,6 @@
 <?php
+namespace phputil\restage;
+
 const TOOL = '[restage] ';
 const SUCCESS = 0;
 
@@ -20,61 +22,62 @@ function showHelp() {
     exit( SUCCESS );
 }
 
-// ----------------------------------------------------------------------------
+function main() {
 
-$verboseMode = hasFlag( '-v' ) || hasFlag( '--verbose' );
-$dryRunMode = hasFlag( '-d' ) || hasFlag( '--dry-run' );
-$helpMode = hasFlag( '--help' );
+    $verboseMode = hasFlag( '-v' ) || hasFlag( '--verbose' );
+    $dryRunMode = hasFlag( '-d' ) || hasFlag( '--dry-run' );
+    $helpMode = hasFlag( '--help' );
 
-if ( $helpMode ) {
-    showHelp();
-}
-if ( $dryRunMode ) {
-    echo TOOL, 'Dry-run enabled', PHP_EOL;
-}
-
-$command = 'git status --porcelain';
-if ( $verboseMode || $dryRunMode ) {
-    echo TOOL, $command, PHP_EOL;
-}
-exec( $command, $output, $exitCode );
-if ( $exitCode != SUCCESS ) {
-    echo TOOL, "Could not run \"$command\"", PHP_EOL;
-    exit( $exitCode );
-}
-
-// Extract changed files
-$changedFiles = [];
-foreach ( $output as $line ) {
-    // Works with multi-byte strings
-    $mode = trim( substr( $line, 0, 2 ) );
-    $file = trim( substr( $line, 2 ) );
-    if ( $mode == 'M' || $mode == 'MM' ) {
-        $changedFiles []= $file;
+    if ( $helpMode ) {
+        showHelp();
     }
-}
-
-// No changes
-if ( count( $changedFiles ) < 1 ) {
-    if ( $verboseMode ) {
-        echo TOOL, 'No changes.', PHP_EOL;
+    if ( $dryRunMode ) {
+        echo TOOL, 'Dry-run enabled', PHP_EOL;
     }
-    echo TOOL, successColor( ' OK ' ), PHP_EOL;
-    exit( SUCCESS );
-}
 
-$command = 'git add ' . implode( ' ', $changedFiles );
-if ( $verboseMode || $dryRunMode ) {
-    echo TOOL, $command, PHP_EOL;
-}
-if ( ! $dryRunMode ) {
+    $command = 'git status --porcelain';
+    if ( $verboseMode || $dryRunMode ) {
+        echo TOOL, $command, PHP_EOL;
+    }
     exec( $command, $output, $exitCode );
     if ( $exitCode != SUCCESS ) {
         echo TOOL, "Could not run \"$command\"", PHP_EOL;
         exit( $exitCode );
     }
-}
 
-echo TOOL, successColor( ' OK ' ), PHP_EOL;
-exit( SUCCESS );
+    // Extract changed files
+    $changedFiles = [];
+    foreach ( $output as $line ) {
+        // Works with multi-byte strings
+        $mode = trim( substr( $line, 0, 2 ) );
+        $file = trim( substr( $line, 2 ) );
+        if ( $mode == 'M' || $mode == 'MM' ) {
+            $changedFiles []= $file;
+        }
+    }
+
+    // No changes
+    if ( count( $changedFiles ) < 1 ) {
+        if ( $verboseMode ) {
+            echo TOOL, 'No changes.', PHP_EOL;
+        }
+        echo TOOL, successColor( ' OK ' ), PHP_EOL;
+        exit( SUCCESS );
+    }
+
+    $command = 'git add ' . implode( ' ', $changedFiles );
+    if ( $verboseMode || $dryRunMode ) {
+        echo TOOL, $command, PHP_EOL;
+    }
+    if ( ! $dryRunMode ) {
+        exec( $command, $output, $exitCode );
+        if ( $exitCode != SUCCESS ) {
+            echo TOOL, "Could not run \"$command\"", PHP_EOL;
+            exit( $exitCode );
+        }
+    }
+
+    echo TOOL, successColor( ' OK ' ), PHP_EOL;
+    exit( SUCCESS );
+}
 ?>
