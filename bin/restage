@@ -1,4 +1,4 @@
 #!/usr/bin/env php
 <?php
-require_once 'src/main.php';
+require_once 'vendor/autoload.php';
 ?>
