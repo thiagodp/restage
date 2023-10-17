@@ -8,7 +8,7 @@
 
 ## Install
 
-> Requires only PHP 5.2+ and Git
+> Requires only PHP 7.0+ and Git
 
 ```bash
 composer require phputil/restage --dev
@@ -20,9 +20,13 @@ composer require phputil/restage --dev
 php vendor/bin/restage
 ```
 
-📖 Tips:
-- You probably want to include the above command into your Git Hook (e.g. `pre-commit`).
-- You can also use [Captain Hook](https://github.com/captainhookphp/captainhook) to manage your Git Hooks within a JSON file.
+You probably want to include the above command into your Git Hook (e.g. `pre-commit`), to be executed after a command that formats your source code. For instance, `php vendor/bin/php-cs-fixer && php vendor/bin/restage`.
+
+### Useful tools
+
+- [Captain Hook](https://github.com/captainhookphp/captainhook) can manage your Git Hooks.
+- [PHP-CS-Fixer](https://github.com/PHP-CS-Fixer/PHP-CS-Fixer) can format your source code.
+- [PHP Code Sniffer](https://github.com/squizlabs/PHP_CodeSniffer) is an alternative to PHP-CS-Fixer.
 
 ## License
 
