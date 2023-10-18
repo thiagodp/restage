@@ -22,6 +22,17 @@ php vendor/bin/restage
 
 You probably want to include the above command into your Git Hook (e.g. `pre-commit`), to be executed after a command that formats your source code. For instance, `php vendor/bin/php-cs-fixer && php vendor/bin/restage`.
 
+### CLI Options
+
+```txt
+  --help         This help.
+  --dry-run, -d  Simulate the command without actually doing anything.
+  --list,    -l  List modified staged files.
+  --verbose, -v  Enable verbose mode.
+```
+
+👉 If you wanna run a linter/formatter in modified files, you can use `--list` to get them.
+
 ### Useful tools
 
 - [Captain Hook](https://github.com/captainhookphp/captainhook) can manage your Git Hooks.
