@@ -17,8 +17,9 @@ function hasFlag( $flag ) {
 function showHelp() {
     echo TOOL, PHP_EOL;
     echo '  --help         This help.', PHP_EOL;
-    echo '  --verbose, -v  Enable verbose mode.', PHP_EOL;
     echo '  --dry-run, -d  Simulate the command without actually doing anything.', PHP_EOL;
+    echo '  --list,    -l  List modified staged files.', PHP_EOL;
+    echo '  --verbose, -v  Enable verbose mode.', PHP_EOL;
     exit( SUCCESS );
 }
 
@@ -26,6 +27,7 @@ function main() {
 
     $verboseMode = hasFlag( '-v' ) || hasFlag( '--verbose' );
     $dryRunMode = hasFlag( '-d' ) || hasFlag( '--dry-run' );
+    $listMode = hasFlag( '-l' ) || hasFlag( '--list' );
     $helpMode = hasFlag( '--help' );
 
     if ( $helpMode ) {
@@ -54,6 +56,11 @@ function main() {
         if ( $mode == 'M' || $mode == 'MM' ) {
             $changedFiles []= $file;
         }
+    }
+
+    if ( $listMode ) {
+        echo implode( ' ', $changedFiles );
+        exit( SUCCESS );
     }
 
     // No changes
