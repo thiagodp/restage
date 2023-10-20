@@ -4,7 +4,7 @@ namespace phputil\restage;
 const TOOL = '[restage] ';
 const SUCCESS = 0;
 
-function successColor( $msg ) { return "\033[1;37m\033[42m$msg\033[0m"; }
+function successColor( $msg ) { return "\033[0;32m$msg\033[0m"; }
 
 function hasFlag( $flag ) {
     if ( ! isset( $_SERVER[ 'argv' ] ) ) {
@@ -16,19 +16,21 @@ function hasFlag( $flag ) {
 
 function showHelp() {
     echo TOOL, PHP_EOL;
-    echo '  --help         This help.', PHP_EOL;
-    echo '  --dry-run, -d  Simulate the command without actually doing anything.', PHP_EOL;
-    echo '  --list,    -l  List modified staged files.', PHP_EOL;
-    echo '  --verbose, -v  Enable verbose mode.', PHP_EOL;
+    echo '  --help          This help.', PHP_EOL;
+    echo '  --all,      -a  List untracked files and modified staged files.', PHP_EOL;
+    echo '  --dry-run,  -d  Simulate the command without actually doing anything.', PHP_EOL;
+    echo '  --modified, -m  List modified staged files.', PHP_EOL;
+    echo '  --verbose,  -v  Enable verbose mode.', PHP_EOL;
     exit( SUCCESS );
 }
 
 function main() {
 
-    $verboseMode = hasFlag( '-v' ) || hasFlag( '--verbose' );
-    $dryRunMode = hasFlag( '-d' ) || hasFlag( '--dry-run' );
-    $listMode = hasFlag( '-l' ) || hasFlag( '--list' );
-    $helpMode = hasFlag( '--help' );
+    $helpMode     = hasFlag( '--help' );
+    $verboseMode  = hasFlag( '--verbose' )  || hasFlag( '-v' );
+    $dryRunMode   = hasFlag( '--dry-run' )  || hasFlag( '-d' );
+    $modifiedMode = hasFlag( '--modified' ) || hasFlag( '-m' );
+    $allMode      = hasFlag( '--all' )      || hasFlag( '-a' );
 
     if ( $helpMode ) {
         showHelp();
@@ -47,32 +49,36 @@ function main() {
         exit( $exitCode );
     }
 
-    // Extract changed files
-    $changedFiles = [];
+    // Extract files
+    $modifiedFiles = [];
+    $untrackedFiles = [];
     foreach ( $output as $line ) {
         // Works with multi-byte strings
         $mode = trim( substr( $line, 0, 2 ) );
         $file = trim( substr( $line, 2 ) );
         if ( $mode == 'M' || $mode == 'MM' ) {
-            $changedFiles []= $file;
+            $modifiedFiles []= $file;
+        } else if ( $mode == '?' || $mode == '??' ) {
+            $untrackedFiles []= $file;
         }
     }
 
-    if ( $listMode ) {
-        echo implode( ' ', $changedFiles );
+    if ( $modifiedMode ) {
+        echo implode( ' ', $modifiedFiles );
+        exit( SUCCESS );
+    }
+    if ( $allMode ) {
+        echo implode( ' ', array_merge( $modifiedFiles, $untrackedFiles ) );
         exit( SUCCESS );
     }
 
-    // No changes
-    if ( count( $changedFiles ) < 1 ) {
-        if ( $verboseMode ) {
-            echo TOOL, 'No changes.', PHP_EOL;
-        }
-        echo TOOL, successColor( ' OK ' ), PHP_EOL;
+    // No modified files
+    if ( count( $modifiedFiles ) < 1 ) {
+        echo TOOL, 'Nothing to do.', PHP_EOL;
         exit( SUCCESS );
     }
 
-    $command = 'git add ' . implode( ' ', $changedFiles );
+    $command = 'git add ' . implode( ' ', $modifiedFiles );
     if ( $verboseMode || $dryRunMode ) {
         echo TOOL, $command, PHP_EOL;
     }
@@ -84,7 +90,7 @@ function main() {
         }
     }
 
-    echo TOOL, successColor( ' OK ' ), PHP_EOL;
+    echo TOOL, successColor( implode( ' ', $modifiedFiles ) ), PHP_EOL;
     exit( SUCCESS );
 }
 ?>

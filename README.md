@@ -26,9 +26,10 @@ You probably want to include the above command into your Git Hook (e.g. `pre-com
 
 ```txt
   --help         This help.
-  --dry-run, -d  Simulate the command without actually doing anything.
-  --list,    -l  List modified staged files.
-  --verbose, -v  Enable verbose mode.
+  --all,      -a  List untracked files and modified staged files.
+  --dry-run,  -d  Simulate the command without actually doing anything.
+  --modified, -m  List modified staged files.
+  --verbose,  -v  Enable verbose mode.
 ```
 
 👉 If you wanna run a linter/formatter in modified files, you can use `--list` to get them.
