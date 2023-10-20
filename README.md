@@ -32,7 +32,7 @@ You probably want to include the above command into your Git Hook (e.g. `pre-com
   --verbose,  -v  Enable verbose mode.
 ```
 
-👉 If you wanna run a linter/formatter in modified files, you can use `--list` to get them.
+👉 If you wanna run a linter/formatter in modified files, you can use `--modified` to get them.
 
 ### Useful tools
 
