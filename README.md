@@ -2,9 +2,11 @@
 
 > ✅ Add only modified files to the staging area
 
-**Use case**: You're using Git and your files are ready to commit. But when you run `git commit`, your `pre-commit` Git Hook runs a formatting tool that change your files again. Now you have to run `git add` again, but only for the changed files, since you don't want to add untracked files yet. _That's boring, I know_. Fortunately, now you can use `restage` for that.
+**Use case**: You're using Git and your files are ready to commit. But when you run `git commit`, your `pre-commit` Git Hook runs a formatting tool that changes your files again. Now you have to run `git add` again, but only for the changed files, since you don't want to add untracked files yet. _That's boring, I know_. Fortunately, now you can use `restage` for that.
 
 👉 `restage` adds only modified files to the staging area.
+
+_Note_: There are similar tools for JavaScript, such as [lint-staged](https://github.com/lint-staged/lint-staged), that can be used for this purpose. `restage` aims  at projects that do not need to use JavaScript.
 
 ## Install
 
@@ -25,7 +27,7 @@ You probably want to include the above command into your Git Hook (e.g. `pre-com
 ### CLI Options
 
 ```txt
-  --help         This help.
+  --help          This help.
   --all,      -a  List untracked files and modified staged files.
   --dry-run,  -d  Simulate the command without actually doing anything.
   --modified, -m  List modified staged files.
