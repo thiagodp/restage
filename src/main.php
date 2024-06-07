@@ -117,6 +117,4 @@ function main() {
     echo TOOL, successColor( implode( ' ', $modifiedFiles ) ), PHP_EOL;
     exit( SUCCESS );
 }
-
-main();
 ?>
