@@ -3,6 +3,7 @@ namespace phputil\restage;
 
 const TOOL = '[restage] ';
 const SUCCESS = 0;
+const MAX_TRIES = 100;
 
 function successColor( $msg ) { return "\033[0;32m$msg\033[0m"; }
 
@@ -24,13 +25,27 @@ function showHelp() {
     exit( SUCCESS );
 }
 
+function findGitDirectory() {
+    $gitDir = '.git';
+    $sep = DIRECTORY_SEPARATOR;
+    $dir = getcwd();
+    $current = "{$dir}{$sep}{$gitDir}";
+    $tries = 0;
+    while ( ! @file_exists( $current ) && $tries < MAX_TRIES ) {
+        $dir = dirname( $dir );
+        $current = "{$dir}{$sep}{$gitDir}";
+        $tries++;
+    }
+    return $current;
+}
+
 function main() {
 
-    $helpMode     = hasFlag( '--help' );
-    $verboseMode  = hasFlag( '--verbose' )  || hasFlag( '-v' );
-    $dryRunMode   = hasFlag( '--dry-run' )  || hasFlag( '-d' );
-    $modifiedMode = hasFlag( '--modified' ) || hasFlag( '-m' );
-    $allMode      = hasFlag( '--all' )      || hasFlag( '-a' );
+    $helpMode           = hasFlag( '--help' );
+    $verboseMode        = hasFlag( '--verbose' )  || hasFlag( '-v' );
+    $dryRunMode         = hasFlag( '--dry-run' )  || hasFlag( '-d' );
+    $listModifiedMode   = hasFlag( '--modified' ) || hasFlag( '-m' );
+    $listAllMode        = hasFlag( '--all' )      || hasFlag( '-a' );
 
     if ( $helpMode ) {
         showHelp();
@@ -53,7 +68,7 @@ function main() {
     $modifiedFiles = [];
     $untrackedFiles = [];
     foreach ( $output as $line ) {
-        // Works with multi-byte strings
+        // It also works with multi-byte strings
         $mode = trim( substr( $line, 0, 2 ) );
         $file = trim( substr( $line, 2 ) );
         if ( $mode == 'M' || $mode == 'MM' ) {
@@ -63,19 +78,28 @@ function main() {
         }
     }
 
-    if ( $modifiedMode ) {
+    if ( $listModifiedMode ) {
         echo implode( ' ', $modifiedFiles );
         exit( SUCCESS );
     }
-    if ( $allMode ) {
+    if ( $listAllMode ) {
         echo implode( ' ', array_merge( $modifiedFiles, $untrackedFiles ) );
         exit( SUCCESS );
     }
 
-    // No modified files
+    // There are no modified files
     if ( count( $modifiedFiles ) < 1 ) {
         echo TOOL, 'Nothing to do.', PHP_EOL;
         exit( SUCCESS );
+    }
+
+    $dir = dirname( findGitDirectory() );
+    $sep = DIRECTORY_SEPARATOR;
+    foreach ( $modifiedFiles as &$file ) {
+        if ( $verboseMode ) {
+            echo TOOL, $file, ' => ', "{$dir}{$sep}{$file}", PHP_EOL;
+        }
+        $file = "{$dir}{$sep}{$file}";
     }
 
     $command = 'git add ' . implode( ' ', $modifiedFiles );
@@ -93,4 +117,6 @@ function main() {
     echo TOOL, successColor( implode( ' ', $modifiedFiles ) ), PHP_EOL;
     exit( SUCCESS );
 }
+
+main();
 ?>
